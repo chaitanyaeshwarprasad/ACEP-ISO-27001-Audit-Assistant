@@ -20,6 +20,57 @@
 
 ---
 
+## 🚀 **Quick Setup**
+
+### **Option 1: Clone and Run (Recommended)**
+```bash
+# Clone the repository
+git clone https://github.com/chaitanyaeshwarprasad/ACEP-ISO-27001-Audit-Assistant.git
+cd ACEP-ISO-27001-Audit-Assistant
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the application
+python app.py
+```
+
+### **Option 2: Download and Setup**
+```bash
+# Download ZIP from GitHub
+# Extract and navigate to folder
+cd ACEP-ISO-27001-Audit-Assistant
+
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Launch the application
+python app.py
+```
+
+### **Access the Application**
+- **URL:** http://localhost:5000
+- **Default Credentials:** Check the application setup
+
+### **System Requirements**
+- **Python:** 3.8 or higher
+- **RAM:** 2GB minimum (4GB recommended)
+- **Storage:** 100MB free space
+- **Browser:** Modern browser with JavaScript enabled
+
+### **What You'll Get**
+- 🎯 **Complete ISO 27001:2022 Control Coverage** (93 controls)
+- 📊 **Real-time Dashboard** with compliance tracking
+- 📎 **Evidence Management** system for file uploads
+- ⚠️ **Risk Register** with automatic severity calculation
+- 📄 **Professional Reports** in HTML format
+- 🔐 **Secure Authentication** system
+- 📱 **Responsive Design** for all devices
+
+---
+
+---
+
 ## 📋 **Table of Contents**
 
 - [🎯 Overview](#-overview)
