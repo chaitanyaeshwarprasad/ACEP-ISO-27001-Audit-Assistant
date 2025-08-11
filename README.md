@@ -20,22 +20,31 @@
 
 ---
 
-## 🚀 **Quick Setup**
+## 🚀 **Quick Setup (Automated)**
 
-### **Option 1: Clone and Run (Recommended)**
+### **🎯 One-Command Automated Setup (Recommended)**
 ```bash
 # Clone the repository
 git clone https://github.com/chaitanyaeshwarprasad/ACEP-ISO-27001-Audit-Assistant.git
 cd ACEP-ISO-27001-Audit-Assistant
 
-# Install dependencies
-pip install -r requirements.txt
+# Run the automated setup script
+chmod +x acep_iso_auto_setup.sh
+./acep_iso_auto_setup.sh
 
-# Run the application
-python app.py
+# Start the application
+./run_acep_iso.sh
 ```
 
-### **Option 2: Download and Setup**
+**✨ What the automated script does:**
+- ✅ **Auto-detects** your system and Python version
+- ✅ **Installs all dependencies** automatically
+- ✅ **Creates virtual environment** with proper permissions
+- ✅ **Handles all setup errors** including externally-managed-environment issues
+- ✅ **Tests the application** to ensure everything works
+- ✅ **Creates quick launcher** script for easy startup
+
+### **📥 Alternative: Manual Setup**
 ```bash
 # Download ZIP from GitHub
 # Extract and navigate to folder
@@ -66,8 +75,40 @@ python app.py
 - 📄 **Professional Reports** in HTML format
 - 🔐 **Secure Authentication** system
 - 📱 **Responsive Design** for all devices
+- 🚀 **One-Command Automated Setup** - No manual configuration needed!
 
 ---
+
+## 🤖 **Automated Setup Script**
+
+### **`acep_iso_auto_setup.sh` - Your Setup Wizard**
+
+The `acep_iso_auto_setup.sh` script is a comprehensive automation tool that handles all the complex setup tasks:
+
+#### **🔧 What It Automates:**
+- **System Detection**: Automatically detects your OS and Python version
+- **Dependency Management**: Installs all required packages and handles conflicts
+- **Virtual Environment**: Creates and configures Python virtual environment
+- **Error Handling**: Resolves common setup issues like externally-managed-environment
+- **Permission Setup**: Sets correct file permissions for scripts
+- **Testing**: Verifies the application runs correctly
+- **Quick Launch**: Creates `run_acep_iso.sh` for easy startup
+
+#### **📋 Prerequisites Check:**
+- ✅ Python 3.8+ availability
+- ✅ System package manager (apt, yum, etc.)
+- ✅ Internet connectivity for package downloads
+- ✅ Sufficient disk space (100MB+)
+
+#### **🚀 Usage:**
+```bash
+# Make executable and run
+chmod +x acep_iso_auto_setup.sh
+./acep_iso_auto_setup.sh
+
+# The script will guide you through the process
+# and automatically handle all setup tasks!
+```
 
 ---
 
@@ -75,7 +116,8 @@ python app.py
 
 - [🎯 Overview](#-overview)
 - [✨ Features](#-features)
-- [🚀 Quick Start](#-quick-start)
+- [🚀 Quick Setup (Automated)](#-quick-setup-automated)
+- [🤖 Automated Setup Script](#-automated-setup-script)
 - [🛠️ Installation](#️-installation)
 - [📱 Usage Guide](#-usage-guide)
 - [🏗️ Architecture](#️-architecture)
@@ -169,9 +211,9 @@ chmod +x acep_iso_auto_setup.sh
 
 ## 🛠️ **Installation**
 
-### **Automated Setup (Recommended)**
+### **🚀 Automated Setup (Highly Recommended)**
 
-The `acep_iso_auto_setup.sh` script handles everything automatically:
+The `acep_iso_auto_setup.sh` script is your one-stop solution for hassle-free installation:
 
 ```bash
 # 1. Make executable
