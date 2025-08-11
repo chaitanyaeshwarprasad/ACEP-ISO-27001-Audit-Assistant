@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+
+{% block title %}Reports - ACEP ISO 27001 Audit Assistant{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 text-neon mb-1">
+                        <i class="bi bi-file-bar-graph me-2"></i>Reports & Analytics
+                    </h1>
+                    <p class="text-muted mb-0">Generate comprehensive audit reports and analytics</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('generate_report') }}" class="btn btn-primary" target="_blank">
+                        <i class="bi bi-file-earmark-pdf me-1"></i>Generate Full Report
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Report Options -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0 text-neon">
+                        <i class="bi bi-file-text me-2"></i>Audit Summary Report
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        Comprehensive overview of all control assessments, compliance status, and key findings.
+                    </p>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-check2 text-success me-1"></i> Control assessment status</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> Compliance percentage</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> Non-compliant controls</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> Assessment notes</li>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('generate_report') }}" class="btn btn-outline-primary w-100" target="_blank">
+                        <i class="bi bi-download me-1"></i>Generate Report
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0 text-neon">
+                        <i class="bi bi-shield-exclamation me-2"></i>Risk Assessment Report
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        Detailed risk register with risk scores, mitigation strategies, and risk heat map.
+                    </p>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-check2 text-success me-1"></i> Risk register table</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> Risk heat map</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> Risk scoring matrix</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> Mitigation strategies</li>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-outline-primary w-100" onclick="generateRiskReport()">
+                        <i class="bi bi-download me-1"></i>Generate Risk Report
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0 text-neon">
+                        <i class="bi bi-file-earmark-text me-2"></i>Evidence Documentation
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        Summary of all uploaded evidence files linked to specific controls.
+                    </p>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-check2 text-success me-1"></i> Evidence inventory</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> Control mappings</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> File metadata</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> Upload statistics</li>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-outline-primary w-100" onclick="generateEvidenceReport()">
+                        <i class="bi bi-download me-1"></i>Generate Evidence Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Report Preview -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-eye me-2"></i>Report Preview
+                        </h5>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="refreshPreview()">
+                                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                            </button>
+                            <button class="btn btn-outline-primary" onclick="exportPreview()">
+                                <i class="bi bi-printer me-1"></i>Print Preview
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card bg-secondary border-0">
+                                <div class="card-body text-center">
+                                    <h3 class="text-neon" id="preview-total-controls">-</h3>
+                                    <p class="mb-0">Total Controls</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-secondary border-0">
+                                <div class="card-body text-center">
+                                    <h3 class="text-success" id="preview-compliant">-</h3>
+                                    <p class="mb-0">Compliant</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-secondary border-0">
+                                <div class="card-body text-center">
+                                    <h3 class="text-danger" id="preview-non-compliant">-</h3>
+                                    <p class="mb-0">Non-Compliant</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-secondary border-0">
+                                <div class="card-body text-center">
+                                    <h3 class="text-warning" id="preview-total-risks">-</h3>
+                                    <p class="mb-0">Total Risks</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-neon">Compliance Overview</h6>
+                            <div class="progress mb-3" style="height: 30px;">
+                                <div class="progress-bar bg-success" id="compliance-progress" style="width: 0%">
+                                    <span id="compliance-percentage">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-neon">Assessment Status</h6>
+                            <div class="d-flex justify-content-between text-center">
+                                <div>
+                                    <div class="badge bg-success" id="status-compliant">0</div>
+                                    <div class="small">Compliant</div>
+                                </div>
+                                <div>
+                                    <div class="badge bg-danger" id="status-non-compliant">0</div>
+                                    <div class="small">Non-Compliant</div>
+                                </div>
+                                <div>
+                                    <div class="badge bg-info" id="status-not-applicable">0</div>
+                                    <div class="small">Not Applicable</div>
+                                </div>
+                                <div>
+                                    <div class="badge bg-warning" id="status-not-assessed">0</div>
+                                    <div class="small">Not Assessed</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            This is a quick preview. Generate the full report for complete details and professional formatting.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Export Options -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-share me-2"></i>Export Options
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="d-grid">
+                                <button class="btn btn-outline-primary" onclick="exportHTML()">
+                                    <i class="bi bi-filetype-html me-1"></i>
+                                    Export as HTML
+                                </button>
+                            </div>
+                            <small class="text-muted">Interactive web report with charts and filtering</small>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="d-grid">
+                                <button class="btn btn-outline-primary" onclick="exportCSV()">
+                                    <i class="bi bi-filetype-csv me-1"></i>
+                                    Export as CSV
+                                </button>
+                            </div>
+                            <small class="text-muted">Data export for spreadsheet analysis</small>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="d-grid">
+                                <button class="btn btn-outline-primary" onclick="exportJSON()">
+                                    <i class="bi bi-filetype-json me-1"></i>
+                                    Export as JSON
+                                </button>
+                            </div>
+                            <small class="text-muted">Machine-readable format for integration</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load preview data
+    refreshPreview();
+});
+
+function refreshPreview() {
+    fetch('/api/dashboard-stats')
+        .then(response => response.json())
+        .then(data => {
+            // Update preview elements
+            document.getElementById('preview-total-controls').textContent = data.total_controls || 0;
+            document.getElementById('preview-compliant').textContent = data.compliant_controls || 0;
+            document.getElementById('preview-non-compliant').textContent = data.non_compliant_controls || 0;
+            document.getElementById('preview-total-risks').textContent = data.total_risks || 0;
+            
+            // Update compliance progress
+            const percentage = data.compliance_percentage || 0;
+            document.getElementById('compliance-progress').style.width = percentage + '%';
+            document.getElementById('compliance-percentage').textContent = percentage + '%';
+            
+            // Update status badges
+            document.getElementById('status-compliant').textContent = data.compliant_controls || 0;
+            document.getElementById('status-non-compliant').textContent = data.non_compliant_controls || 0;
+            document.getElementById('status-not-applicable').textContent = data.not_applicable_controls || 0;
+            document.getElementById('status-not-assessed').textContent = data.not_assessed_controls || 0;
+        })
+        .catch(error => {
+            console.error('Error loading preview data:', error);
+            // Set default values on error
+            document.getElementById('preview-total-controls').textContent = '0';
+            document.getElementById('preview-compliant').textContent = '0';
+            document.getElementById('preview-non-compliant').textContent = '0';
+            document.getElementById('preview-total-risks').textContent = '0';
+        });
+}
+
+function generateRiskReport() {
+    window.open('/reports/risk', '_blank');
+}
+
+function generateEvidenceReport() {
+    window.open('/reports/evidence', '_blank');
+}
+
+function exportPreview() {
+    window.print();
+}
+
+function exportHTML() {
+    window.open('/reports/generate', '_blank');
+}
+
+function exportCSV() {
+    window.open('/reports/export/csv', '_blank');
+}
+
+function exportJSON() {
+    window.open('/reports/export/json', '_blank');
+}
+</script>
+
+<style>
+@media print {
+    .navbar, .btn, .card-header .btn-group {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+    
+    body {
+        background: white !important;
+        color: black !important;
+    }
+    
+    .text-neon {
+        color: #000080 !important;
+    }
+}
+</style>
+{% endblock %}

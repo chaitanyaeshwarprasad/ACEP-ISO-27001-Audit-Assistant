@@ -1,0 +1,350 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - ACEP ISO 27001 Audit Assistant{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 text-white" style="background: var(--tech-gradient);">
+                <div class="card-body py-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="h2 mb-2 fw-bold">
+                                <span class="step-indicator">1</span>
+                                Welcome to Your Audit Dashboard
+                            </h1>
+                            <p class="mb-0 fs-5">Track your ISO/IEC 27001:2022 compliance progress in real-time</p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <div class="bg-white bg-opacity-10 rounded p-3">
+                                <i class="bi bi-calendar3 me-2"></i>
+                                {{ moment().strftime('%d %B %Y') }}
+                                <br>
+                                <small class="opacity-75">Last updated: {{ moment().strftime('%H:%M') }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Beginner Help Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="help-text">
+                <strong>Getting Started:</strong> This dashboard shows your audit progress at a glance. 
+                Start by reviewing your control assessments in the <strong>Audit Checklist</strong>, 
+                then upload supporting evidence and manage risks as needed.
+            </div>
+        </div>
+    </div>
+    
+    <!-- Key Metrics Row -->
+    <div class="row mb-4">
+        <!-- Compliance Overview -->
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-shield-check text-primary mb-3" style="font-size: 2.5rem;"></i>
+                    <div class="stat-number">{{ compliance_percentage }}%</div>
+                    <div class="stat-label">Compliance Rate</div>
+                    <div class="stat-trend text-success">
+                        <i class="bi bi-arrow-up"></i>
+                        {{ compliant_controls }} of {{ total_controls - not_assessed_controls }} controls
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Total Controls -->
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-list-check text-info mb-3" style="font-size: 2.5rem;"></i>
+                    <div class="stat-number">{{ total_controls }}</div>
+                    <div class="stat-label">Total Controls</div>
+                    <div class="stat-trend text-info">
+                        <i class="bi bi-info-circle"></i>
+                        ISO 27001:2022 Annex A
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Non-Compliant Controls -->
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-exclamation-triangle text-danger mb-2" style="font-size: 2rem;"></i>
+                    <div class="stat-number text-danger">{{ non_compliant_controls }}</div>
+                    <p class="text-muted mb-0">Non-Compliant</p>
+                    <small class="text-danger">
+                        <i class="bi bi-arrow-down"></i> Requires attention
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Risk Assessment -->
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-exclamation-diamond text-warning mb-2" style="font-size: 2rem;"></i>
+                    <div class="stat-number text-warning">{{ high_risks }}</div>
+                    <p class="text-muted mb-0">High Risks</p>
+                    <small class="text-warning">
+                        <i class="bi bi-shield-exclamation"></i> {{ total_risks }} total risks
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Progress Overview -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up me-2"></i>Audit Progress
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Compliant Progress -->
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="text-success fw-semibold">Compliant</span>
+                                <span class="text-success">{{ compliant_controls }}</span>
+                            </div>
+                            <div class="progress mb-2" style="height: 8px;">
+                                <div class="progress-bar bg-success" style="width: {{ (compliant_controls / total_controls * 100) if total_controls > 0 else 0 }}%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Non-Compliant Progress -->
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="text-danger fw-semibold">Non-Compliant</span>
+                                <span class="text-danger">{{ non_compliant_controls }}</span>
+                            </div>
+                            <div class="progress mb-2" style="height: 8px;">
+                                <div class="progress-bar bg-danger" style="width: {{ (non_compliant_controls / total_controls * 100) if total_controls > 0 else 0 }}%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Not Applicable Progress -->
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="text-info fw-semibold">Not Applicable</span>
+                                <span class="text-info">{{ not_applicable_controls }}</span>
+                            </div>
+                            <div class="progress mb-2" style="height: 8px;">
+                                <div class="progress-bar bg-info" style="width: {{ (not_applicable_controls / total_controls * 100) if total_controls > 0 else 0 }}%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Not Assessed Progress -->
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="text-warning fw-semibold">Not Assessed</span>
+                                <span class="text-warning">{{ not_assessed_controls }}</span>
+                            </div>
+                            <div class="progress mb-2" style="height: 8px;">
+                                <div class="progress-bar bg-warning" style="width: {{ (not_assessed_controls / total_controls * 100) if total_controls > 0 else 0 }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Risk Overview -->
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-shield-exclamation me-2"></i>Risk Distribution
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-danger">High Risk</span>
+                            <span class="badge risk-high">{{ high_risks }}</span>
+                        </div>
+                        <div class="progress mb-2" style="height: 6px;">
+                            <div class="progress-bar bg-danger" style="width: {{ (high_risks / total_risks * 100) if total_risks > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-warning">Medium Risk</span>
+                            <span class="badge risk-medium">{{ medium_risks }}</span>
+                        </div>
+                        <div class="progress mb-2" style="height: 6px;">
+                            <div class="progress-bar bg-warning" style="width: {{ (medium_risks / total_risks * 100) if total_risks > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-success">Low Risk</span>
+                            <span class="badge risk-low">{{ low_risks }}</span>
+                        </div>
+                        <div class="progress mb-2" style="height: 6px;">
+                            <div class="progress-bar bg-success" style="width: {{ (low_risks / total_risks * 100) if total_risks > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('risk_register') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-eye me-1"></i>View Risk Register
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-clock-history me-2"></i>Recent Assessment Activity
+                        </h5>
+                        <a href="{{ url_for('audit_checklist') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-list-check me-1"></i>View All Controls
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if recent_controls %}
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Control ID</th>
+                                    <th>Title</th>
+                                    <th>Status</th>
+                                    <th>Assessed Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for control in recent_controls %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ control.control_id }}</span>
+                                    </td>
+                                    <td>{{ control.title }}</td>
+                                    <td>
+                                        {% if control.status == 'Compliant' %}
+                                            <span class="badge badge-compliant">
+                                                <i class="bi bi-check-circle me-1"></i>Compliant
+                                            </span>
+                                        {% elif control.status == 'Not Compliant' %}
+                                            <span class="badge badge-non-compliant">
+                                                <i class="bi bi-x-circle me-1"></i>Non-Compliant
+                                            </span>
+                                        {% elif control.status == 'Not Applicable' %}
+                                            <span class="badge badge-not-applicable">
+                                                <i class="bi bi-dash-circle me-1"></i>Not Applicable
+                                            </span>
+                                        {% else %}
+                                            <span class="badge badge-not-assessed">
+                                                <i class="bi bi-question-circle me-1"></i>Not Assessed
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            {{ control.assessed_at or 'Never' }}
+                                        </small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-2">No recent assessment activity</p>
+                        <a href="{{ url_for('audit_checklist') }}" class="btn btn-primary">
+                            <i class="bi bi-play-circle me-1"></i>Start Assessment
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightning me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('audit_checklist') }}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-list-check me-1"></i>Continue Assessment
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('evidence') }}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-file-earmark-arrow-up me-1"></i>Upload Evidence
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('risk_register') }}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-plus-circle me-1"></i>Add Risk
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('reports') }}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-file-bar-graph me-1"></i>Generate Report
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate counter numbers on page load
+    const statNumbers = document.querySelectorAll('.stat-number');
+    statNumbers.forEach(element => {
+        const finalValue = parseInt(element.textContent.replace('%', ''));
+        if (!isNaN(finalValue)) {
+            animateCounter(element, 0, finalValue, 1500);
+        }
+    });
+    
+    // Add glow effect to high priority cards
+    const highRiskElements = document.querySelectorAll('.text-danger');
+    highRiskElements.forEach(element => {
+        if (element.closest('.stat-card')) {
+            element.closest('.stat-card').classList.add('glow-animation');
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+
+{% block title %}Evidence - ACEP ISO 27001 Audit Assistant{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 text-neon mb-1">
+                        <i class="bi bi-file-earmark-text me-2"></i>Evidence Management
+                    </h1>
+                    <p class="text-muted mb-0">Upload and manage audit evidence files</p>
+                </div>
+                <div>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                        <i class="bi bi-file-earmark-arrow-up me-1"></i>Upload Evidence
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Evidence Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-files text-neon mb-2" style="font-size: 2rem;"></i>
+                    <div class="stat-number">{{ evidence_list|length }}</div>
+                    <p class="text-muted mb-0">Total Files</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-shield-check text-success mb-2" style="font-size: 2rem;"></i>
+                    <div class="stat-number">{{ evidence_list|selectattr('control_id', 'defined')|list|length }}</div>
+                    <p class="text-muted mb-0">Linked to Controls</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar-week text-info mb-2" style="font-size: 2rem;"></i>
+                    <div class="stat-number">{{ evidence_list|selectattr('uploaded_at', 'defined')|selectattr('uploaded_at', 'match', '.*' + moment().strftime('%Y-%m-%d') + '.*')|list|length }}</div>
+                    <p class="text-muted mb-0">Today's Uploads</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-hdd text-warning mb-2" style="font-size: 2rem;"></i>
+                    <div class="stat-number">{{ ((evidence_list|sum(attribute='file_size') or 0) / 1024 / 1024)|round(1) }}</div>
+                    <p class="text-muted mb-0">Total MB</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Evidence List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-archive me-2"></i>Evidence Files
+                        </h5>
+                        <div class="input-group" style="width: 300px;">
+                            <span class="input-group-text bg-secondary border-secondary">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" class="form-control" id="evidence-search" 
+                                   placeholder="Search files or controls...">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if evidence_list %}
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0" id="evidence-table">
+                            <thead>
+                                <tr>
+                                    <th>File Name</th>
+                                    <th>Control</th>
+                                    <th>Size</th>
+                                    <th>Uploaded By</th>
+                                    <th>Upload Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for evidence in evidence_list %}
+                                <tr class="evidence-row">
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi {{ get_file_icon(evidence.original_filename) }} text-neon me-2"></i>
+                                            <div>
+                                                <div class="fw-semibold">{{ evidence.original_filename }}</div>
+                                                <small class="text-muted">{{ evidence.filename }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ evidence.control_id }}</span>
+                                        {% if evidence.control_title %}
+                                        <br><small class="text-muted">{{ evidence.control_title[:50] }}{% if evidence.control_title|length > 50 %}...{% endif %}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ format_file_size(evidence.file_size) }}</span>
+                                    </td>
+                                    <td>
+                                        <i class="bi bi-person-circle me-1"></i>{{ evidence.uploaded_by }}
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar3 me-1"></i>{{ evidence.uploaded_at }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ url_for('download_evidence', evidence_id=evidence.id) }}" 
+                                               class="btn btn-outline-primary" title="Download">
+                                                <i class="bi bi-download"></i>
+                                            </a>
+                                            <button class="btn btn-outline-danger" 
+                                                    onclick="confirmDelete({{ evidence.id }})" title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-file-earmark-x text-muted" style="font-size: 4rem;"></i>
+                        <h4 class="text-muted mt-3">No Evidence Files</h4>
+                        <p class="text-muted">Upload your first evidence file to get started</p>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                            <i class="bi bi-file-earmark-arrow-up me-1"></i>Upload Evidence
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark">
+            <form method="POST" action="{{ url_for('upload_evidence') }}" enctype="multipart/form-data">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-neon">
+                        <i class="bi bi-file-earmark-arrow-up me-2"></i>Upload Evidence
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="control_id" class="form-label">Associated Control *</label>
+                        <select class="form-select" id="control_id" name="control_id" required>
+                            <option value="">Select a control...</option>
+                            {% for control in controls %}
+                            <option value="{{ control.control_id }}">{{ control.control_id }} - {{ control.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Evidence File *</label>
+                        <input type="file" class="form-control" id="file" name="file" required
+                               accept=".pdf,.docx,.doc,.xlsx,.xls,.pptx,.ppt,.txt,.jpg,.jpeg,.png,.zip,.rar">
+                        <div class="form-text text-muted">
+                            Supported formats: PDF, Word, Excel, PowerPoint, Images, Text, Archives
+                        </div>
+                        <div class="file-feedback mt-2"></div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Tips:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Use descriptive file names</li>
+                            <li>Maximum file size: 16MB</li>
+                            <li>Files are automatically timestamped</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-cloud-upload me-1"></i>Upload Evidence
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Evidence search functionality
+    const searchInput = document.getElementById('evidence-search');
+    const table = document.getElementById('evidence-table');
+    
+    if (searchInput && table) {
+        const rows = table.querySelectorAll('tbody tr');
+        
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            rows.forEach(row => {
+                const fileName = row.cells[0].textContent.toLowerCase();
+                const controlId = row.cells[1].textContent.toLowerCase();
+                
+                if (fileName.includes(searchTerm) || controlId.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    // File input enhancement
+    const fileInput = document.getElementById('file');
+    if (fileInput) {
+        fileInput.addEventListener('change', function() {
+            const file = this.files[0];
+            const feedback = document.querySelector('.file-feedback');
+            
+            if (file) {
+                const size = formatFileSize(file.size);
+                const type = file.type || 'Unknown type';
+                
+                feedback.innerHTML = `
+                    <div class="alert alert-success p-2 mb-0">
+                        <i class="bi bi-check-circle me-1"></i>
+                        <strong>${file.name}</strong><br>
+                        <small>Size: ${size} | Type: ${type}</small>
+                    </div>
+                `;
+            }
+        });
+    }
+    
+    // Auto-select control from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const controlParam = urlParams.get('control');
+    if (controlParam) {
+        const controlSelect = document.getElementById('control_id');
+        if (controlSelect) {
+            const option = Array.from(controlSelect.options).find(opt => 
+                opt.value === controlParam
+            );
+            if (option) {
+                option.selected = true;
+                // Show upload modal if control is pre-selected
+                const uploadModal = new bootstrap.Modal(document.getElementById('uploadModal'));
+                uploadModal.show();
+            }
+        }
+    }
+});
+
+function confirmDelete(evidenceId) {
+    if (confirm('Are you sure you want to delete this evidence file? This action cannot be undone.')) {
+        fetch(`/evidence/delete/${evidenceId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error deleting file: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Error deleting file');
+            console.error('Error:', error);
+        });
+    }
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+</script>
+{% endblock %}

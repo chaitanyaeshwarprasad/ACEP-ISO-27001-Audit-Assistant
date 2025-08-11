@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+
+{% block title %}Audit Checklist - ACEP ISO 27001 Audit Assistant{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 text-neon mb-1">
+                        <i class="bi bi-list-check me-2"></i>Audit Checklist
+                    </h1>
+                    <p class="text-muted mb-0">ISO/IEC 27001:2022 Annex A Controls Assessment</p>
+                </div>
+                <div>
+                    <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#helpModal">
+                        <i class="bi bi-question-circle me-1"></i>Help
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filters and Search -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="category" class="form-label">Filter by Category</label>
+                            <select class="form-select" id="category" name="category" onchange="this.form.submit()">
+                                <option value="">All Categories</option>
+                                {% for category in categories %}
+                                <option value="{{ category.category }}" 
+                                    {% if current_category == category.category %}selected{% endif %}>
+                                    {{ category.category }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="search" class="form-label">Search Controls</label>
+                            <input type="text" class="form-control" id="search" placeholder="Search by ID or title...">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="status-filter" class="form-label">Filter by Status</label>
+                            <select class="form-select" id="status-filter">
+                                <option value="">All Statuses</option>
+                                <option value="Compliant">Compliant</option>
+                                <option value="Not Compliant">Not Compliant</option>
+                                <option value="Not Applicable">Not Applicable</option>
+                                <option value="Not Assessed">Not Assessed</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Controls Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-shield-check me-2"></i>Control Assessment
+                            {% if current_category %}
+                            <span class="badge bg-secondary ms-2">{{ current_category }}</span>
+                            {% endif %}
+                        </h5>
+                        <small class="text-muted">
+                            <span id="visible-count">{{ controls|length }}</span> controls displayed
+                        </small>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0" id="controls-table">
+                            <thead class="sticky-top">
+                                <tr>
+                                    <th style="width: 100px;">Control ID</th>
+                                    <th style="width: 30%;">Title</th>
+                                    <th style="width: 150px;">Status</th>
+                                    <th>Notes</th>
+                                    <th style="width: 120px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for control in controls %}
+                                <tr class="control-row" data-control-id="{{ control.control_id }}" 
+                                    data-status="{{ control.status }}"
+                                    {% if control.status == 'Compliant' %}class="table-success"
+                                    {% elif control.status == 'Not Compliant' %}class="table-danger"
+                                    {% elif control.status == 'Not Applicable' %}class="table-info"
+                                    {% else %}class="table-warning"{% endif %}>
+                                    <td>
+                                        <span class="badge bg-secondary fw-bold">{{ control.control_id }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold">{{ control.title }}</div>
+                                        {% if control.description %}
+                                        <small class="text-muted">{{ control.description[:100] }}{% if control.description|length > 100 %}...{% endif %}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form method="POST" action="{{ url_for('update_control', control_id=control.control_id) }}" 
+                                              class="auto-save control-form" data-control-id="{{ control.control_id }}">
+                                            <select class="form-select form-select-sm control-status" 
+                                                    name="status" data-control-id="{{ control.control_id }}">
+                                                <option value="Not Assessed" {% if control.status == 'Not Assessed' %}selected{% endif %}>Not Assessed</option>
+                                                <option value="Compliant" {% if control.status == 'Compliant' %}selected{% endif %}>Compliant</option>
+                                                <option value="Not Compliant" {% if control.status == 'Not Compliant' %}selected{% endif %}>Not Compliant</option>
+                                                <option value="Not Applicable" {% if control.status == 'Not Applicable' %}selected{% endif %}>Not Applicable</option>
+                                            </select>
+                                    </td>
+                                    <td>
+                                        <textarea class="form-control form-control-sm" name="notes" rows="2" 
+                                                  placeholder="Assessment notes...">{{ control.notes or '' }}</textarea>
+                                        <div class="save-status mt-1"></div>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group-vertical btn-group-sm">
+                                            <button type="submit" class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-check2 me-1"></i>Save
+                                            </button>
+                                            <button type="button" class="btn btn-outline-info btn-sm" 
+                                                    data-bs-toggle="modal" data-bs-target="#detailModal"
+                                                    data-control-id="{{ control.control_id }}"
+                                                    data-title="{{ control.title }}"
+                                                    data-description="{{ control.description }}">
+                                                <i class="bi bi-info-circle me-1"></i>Details
+                                            </button>
+                                        </div>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Control Detail Modal -->
+<div class="modal fade" id="detailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-neon">
+                    <i class="bi bi-shield-check me-2"></i>Control Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Control ID:</label>
+                    <p id="modal-control-id" class="text-muted"></p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Title:</label>
+                    <p id="modal-title"></p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Description:</label>
+                    <p id="modal-description" class="text-muted"></p>
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="#" id="modal-evidence-link" class="btn btn-outline-primary">
+                    <i class="bi bi-file-earmark-arrow-up me-1"></i>Upload Evidence
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-neon">
+                    <i class="bi bi-question-circle me-2"></i>How to Use
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6 class="text-neon">Control Status Options:</h6>
+                <ul class="list-unstyled">
+                    <li><span class="badge badge-compliant me-2">Compliant</span> Control is fully implemented</li>
+                    <li><span class="badge badge-non-compliant me-2">Not Compliant</span> Control needs implementation</li>
+                    <li><span class="badge badge-not-applicable me-2">Not Applicable</span> Control doesn't apply</li>
+                    <li><span class="badge badge-not-assessed me-2">Not Assessed</span> Not yet evaluated</li>
+                </ul>
+                
+                <h6 class="text-neon mt-3">Features:</h6>
+                <ul>
+                    <li>Auto-save functionality (saves after 2 seconds of inactivity)</li>
+                    <li>Filter by category or status</li>
+                    <li>Search controls by ID or title</li>
+                    <li>Add detailed assessment notes</li>
+                </ul>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Got it!</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Search functionality
+    const searchInput = document.getElementById('search');
+    const statusFilter = document.getElementById('status-filter');
+    const table = document.getElementById('controls-table');
+    const rows = table.querySelectorAll('tbody tr');
+    const visibleCount = document.getElementById('visible-count');
+    
+    function filterTable() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusValue = statusFilter.value;
+        let visibleRows = 0;
+        
+        rows.forEach(row => {
+            const controlId = row.dataset.controlId.toLowerCase();
+            const title = row.cells[1].textContent.toLowerCase();
+            const status = row.dataset.status;
+            
+            const matchesSearch = controlId.includes(searchTerm) || title.includes(searchTerm);
+            const matchesStatus = !statusValue || status === statusValue;
+            
+            if (matchesSearch && matchesStatus) {
+                row.style.display = '';
+                visibleRows++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        visibleCount.textContent = visibleRows;
+    }
+    
+    searchInput.addEventListener('input', filterTable);
+    statusFilter.addEventListener('change', filterTable);
+    
+    // Control detail modal
+    const detailModal = document.getElementById('detailModal');
+    detailModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const controlId = button.getAttribute('data-control-id');
+        const title = button.getAttribute('data-title');
+        const description = button.getAttribute('data-description');
+        
+        document.getElementById('modal-control-id').textContent = controlId;
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-description').textContent = description || 'No description available';
+        
+        // Update evidence link
+        const evidenceLink = document.getElementById('modal-evidence-link');
+        evidenceLink.href = '/evidence?control=' + encodeURIComponent(controlId);
+    });
+    
+    // Auto-save enhancement for control forms
+    const controlForms = document.querySelectorAll('.control-form');
+    controlForms.forEach(form => {
+        const statusSelect = form.querySelector('.control-status');
+        const notesTextarea = form.querySelector('textarea');
+        let saveTimeout;
+        
+        function autoSave() {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                const formData = new FormData(form);
+                const saveStatus = form.querySelector('.save-status');
+                
+                saveStatus.innerHTML = '<i class="bi bi-clock text-warning"></i> Saving...';
+                
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Auto-Save': 'true'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        saveStatus.innerHTML = '<i class="bi bi-check-circle text-success"></i> Saved';
+                        // Update row styling
+                        const row = form.closest('tr');
+                        updateControlRowStyle(row, statusSelect.value);
+                        row.dataset.status = statusSelect.value;
+                    } else {
+                        saveStatus.innerHTML = '<i class="bi bi-exclamation-circle text-danger"></i> Error';
+                    }
+                    
+                    setTimeout(() => {
+                        saveStatus.innerHTML = '';
+                    }, 3000);
+                })
+                .catch(error => {
+                    saveStatus.innerHTML = '<i class="bi bi-exclamation-circle text-danger"></i> Error';
+                    console.error('Auto-save error:', error);
+                });
+            }, 2000);
+        }
+        
+        statusSelect.addEventListener('change', autoSave);
+        notesTextarea.addEventListener('input', autoSave);
+    });
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + F for search
+        if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+            e.preventDefault();
+            searchInput.focus();
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Login - ACEP ISO 27001 Audit Assistant{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <i class="bi bi-shield-check"></i>
+            <h3>ACEP ISO 27001 Audit Assistant</h3>
+            <p class="text-muted">Secure Access Portal</p>
+        </div>
+        
+        <div class="card-body p-4">
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="username" class="form-label">
+                        <i class="bi bi-person me-1"></i>Username
+                    </label>
+                    <input type="text" class="form-control" id="username" name="username" 
+                           placeholder="Enter your username" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="password" class="form-label">
+                        <i class="bi bi-lock me-1"></i>Password
+                    </label>
+                    <input type="password" class="form-control" id="password" name="password" 
+                           placeholder="Enter your password" required>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="remember">
+                        <label class="form-check-label text-muted" for="remember">
+                            Remember me
+                        </label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 py-2">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>
+                    Sign In
+                </button>
+            </form>
+            
+            <hr class="my-4">
+            
+            <div class="text-center">
+                <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Default credentials: <strong>acep</strong> / <strong>acep123</strong>
+                </small>
+            </div>
+        </div>
+        
+        <div class="card-footer text-center py-3 bg-transparent border-0">
+            <small class="text-muted">
+                <i class="bi bi-shield-shaded me-1"></i>
+                Information Security Management System
+            </small>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add subtle animation to the login card
+    const loginCard = document.querySelector('.login-card');
+    loginCard.style.opacity = '0';
+    loginCard.style.transform = 'translateY(30px)';
+    
+    setTimeout(() => {
+        loginCard.style.transition = 'all 0.6s ease-out';
+        loginCard.style.opacity = '1';
+        loginCard.style.transform = 'translateY(0)';
+    }, 100);
+    
+    // Focus on username field
+    document.getElementById('username').focus();
+});
+</script>
+{% endblock %}
