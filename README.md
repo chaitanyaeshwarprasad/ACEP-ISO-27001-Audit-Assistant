@@ -32,6 +32,9 @@ cd ACEP-ISO-27001-Audit-Assistant
 chmod +x acep_iso_auto_setup.sh
 ./acep_iso_auto_setup.sh
 
+# If you get permission errors, try:
+# chmod -R 755 . && sudo chown -R $USER:$USER .
+
 # Start the application
 ./run_acep_iso.sh
 
@@ -107,6 +110,7 @@ The `acep_iso_auto_setup.sh` script is a comprehensive automation tool that hand
 - ✅ System package manager (apt, yum, etc.)
 - ✅ Internet connectivity for package downloads
 - ✅ Sufficient disk space (100MB+)
+- ✅ Proper file permissions (read/write access to project directory)
 
 #### **🚀 Usage:**
 ```bash
@@ -116,6 +120,36 @@ chmod +x acep_iso_auto_setup.sh
 
 # The script will guide you through the process
 # and automatically handle all setup tasks!
+```
+
+#### **⚠️ Common Permission Issues & Solutions:**
+
+**1. Permission Denied Error:**
+```bash
+# Fix file permissions first
+chmod +x acep_iso_auto_setup.sh
+chmod +x run_acep_iso.sh
+
+# Fix directory permissions
+chmod 755 .
+chmod 755 database/
+chmod 755 static/
+chmod 755 templates/
+```
+
+**2. Virtual Environment Permission Error:**
+```bash
+# If you get "Permission denied: acep_iso_venv"
+# Run with proper permissions
+sudo chown -R $USER:$USER .
+chmod -R 755 .
+./acep_iso_auto_setup.sh
+```
+
+**3. Alternative: Run with Elevated Permissions:**
+```bash
+# If permission issues persist
+sudo ./acep_iso_auto_setup.sh
 ```
 
 ---
@@ -520,7 +554,29 @@ acep-iso-27001-audit/
 
 ### **Common Issues**
 
-#### **1. ModuleNotFoundError: No module named 'flask'**
+#### **1. Permission Denied Errors (Most Common)**
+```bash
+# Fix file and directory permissions
+chmod +x acep_iso_auto_setup.sh
+chmod +x run_acep_iso.sh
+chmod -R 755 .
+
+# Fix ownership if needed
+sudo chown -R $USER:$USER .
+
+# Alternative: Run with elevated permissions
+sudo ./acep_iso_auto_setup.sh
+```
+
+#### **2. Virtual Environment Permission Error**
+```bash
+# If you get "Permission denied: acep_iso_venv"
+sudo chown -R $USER:$USER .
+chmod -R 755 .
+./acep_iso_auto_setup.sh
+```
+
+#### **3. ModuleNotFoundError: No module named 'flask'**
 ```bash
 # Solution: Activate virtual environment
 source acep_iso_venv/bin/activate
