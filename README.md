@@ -634,12 +634,6 @@ python app.py  # Will recreate database
 
 ---
 
-## 📄 **License**
-
-This project is created for educational and professional use. All rights reserved by A Chaitanya Eshwar Prasad.
-
----
-
 ## 👨‍💻 **Creator**
 
 **A Chaitanya Eshwar Prasad** - Cybersecurity Professional & Developer
