@@ -70,7 +70,7 @@ python app.py
 
 ### **Access the Application**
 - **URL:** http://localhost:5000
-- **Default Credentials:** Check the application setup
+- **Default Credentials:** acep/acep123
 
 ### **System Requirements**
 - **Python:** 3.8 or higher
@@ -174,7 +174,6 @@ sudo ./acep_iso_auto_setup.sh
 - [🚀 Performance Optimizations](#-performance-optimizations)
 - [🐛 Troubleshooting](#-troubleshooting)
 - [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
 - [👨‍💻 Creator](#-creator)
 
 ---
