@@ -34,6 +34,9 @@ chmod +x acep_iso_auto_setup.sh
 
 # Start the application
 ./run_acep_iso.sh
+
+# OR run directly with Python
+python app.py
 ```
 
 **✨ What the automated script does:**
@@ -43,6 +46,11 @@ chmod +x acep_iso_auto_setup.sh
 - ✅ **Handles all setup errors** including externally-managed-environment issues
 - ✅ **Tests the application** to ensure everything works
 - ✅ **Creates quick launcher** script for easy startup
+
+**🚀 After Setup - Multiple Ways to Run:**
+- **Option 1:** Use the quick launcher: `./run_acep_iso.sh`
+- **Option 2:** Run directly with Python: `python app.py`
+- **Option 3:** Activate virtual environment first: `source acep_iso_venv/bin/activate && python app.py`
 
 ### **📥 Alternative: Manual Setup**
 ```bash
@@ -224,6 +232,9 @@ chmod +x acep_iso_auto_setup.sh
 
 # 3. Start application
 ./run_acep_iso.sh
+
+# OR run directly with Python
+python app.py
 ```
 
 **What the script does:**
@@ -234,6 +245,11 @@ chmod +x acep_iso_auto_setup.sh
 - ✅ Sets proper permissions
 - ✅ Tests the application
 - ✅ Creates quick launcher script
+
+**🚀 Multiple Ways to Run After Setup:**
+- **Quick Launcher:** `./run_acep_iso.sh` (recommended for convenience)
+- **Direct Python:** `python app.py` (if you prefer direct control)
+- **With Virtual Environment:** `source acep_iso_venv/bin/activate && python app.py`
 
 ### **Manual Setup**
 
@@ -259,9 +275,13 @@ python app.py
 
 ### **1. Initial Setup**
 - Run the automated setup: `./acep_iso_auto_setup.sh`
-- Start the application: `./run_acep_iso.sh`
+- Start the application: `./run_acep_iso.sh` **OR** `python app.py`
 - Login with default credentials: `acep` / `acep123`
 - Database is automatically initialized with all 93 controls
+
+**💡 Pro Tip:** After automated setup, you can use either:
+- `./run_acep_iso.sh` - Quick launcher (recommended)
+- `python app.py` - Direct Python execution
 
 ### **2. Dashboard Overview**
 - View compliance statistics and progress
