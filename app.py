@@ -556,7 +556,7 @@ def export_html():
 def export_csv():
     """Export audit report as CSV"""
     import csv
-    from io import StringIO
+    from io import StringIO, BytesIO
     
     conn = get_db_connection()
     
@@ -566,9 +566,9 @@ def export_csv():
     
     conn.close()
     
-    # Create CSV content
-    output = StringIO()
-    writer = csv.writer(output)
+    # Create CSV content in memory
+    string_buffer = StringIO()
+    writer = csv.writer(string_buffer)
     
     # Write headers
     writer.writerow(['ISO 27001:2022 Audit Report'])
@@ -605,9 +605,13 @@ def export_csv():
             risk['owner'] or ''
         ])
     
-    output.seek(0)
+    # Convert to bytes for file download
+    csv_bytes = string_buffer.getvalue().encode('utf-8')
+    byte_buffer = BytesIO(csv_bytes)
+    byte_buffer.seek(0)
+    
     return send_file(
-        StringIO(output.getvalue()),
+        byte_buffer,
         mimetype='text/csv',
         as_attachment=True,
         download_name=f'iso27001_audit_report_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
