@@ -74,6 +74,7 @@ python app.py
 
 ### **System Requirements**
 - **Python:** 3.8 or higher
+- **Kali Linux OS:** 2025.2 or higher
 - **RAM:** 2GB minimum (4GB recommended)
 - **Storage:** 100MB free space
 - **Browser:** Modern browser with JavaScript enabled
